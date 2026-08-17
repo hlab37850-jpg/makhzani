@@ -19,12 +19,11 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
   }
-
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
@@ -79,6 +78,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE purchases (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        supplier_id INTEGER,
         total REAL NOT NULL DEFAULT 0,
         paid REAL NOT NULL DEFAULT 0,
         debt REAL NOT NULL DEFAULT 0,
@@ -98,9 +98,30 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
+      CREATE TABLE suppliers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL DEFAULT '',
+        address TEXT NOT NULL DEFAULT '',
+        balance REAL NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
       CREATE TABLE payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        note TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE supplier_payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        supplier_id INTEGER NOT NULL,
         amount REAL NOT NULL,
         note TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL
@@ -125,6 +146,35 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE sale_items ADD COLUMN profit REAL NOT NULL DEFAULT 0',
       );
+    }
+
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE suppliers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          phone TEXT NOT NULL DEFAULT '',
+          address TEXT NOT NULL DEFAULT '',
+          balance REAL NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL
+        )
+      ''');
+
+      await db.execute(
+        'ALTER TABLE purchases ADD COLUMN supplier_id INTEGER',
+      );
+    }
+
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE supplier_payments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          supplier_id INTEGER NOT NULL,
+          amount REAL NOT NULL,
+          note TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL
+        )
+      ''');
     }
   }
 }
