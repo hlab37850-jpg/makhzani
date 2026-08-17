@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
+
   static Database? _database;
 
   DatabaseHelper._internal();
@@ -19,9 +20,8 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 1,
       onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
     );
   }
 
@@ -30,7 +30,6 @@ class DatabaseHelper {
       CREATE TABLE products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        barcode TEXT NOT NULL DEFAULT '',
         quantity REAL NOT NULL DEFAULT 0,
         purchase_price REAL NOT NULL DEFAULT 0,
         sale_price REAL NOT NULL DEFAULT 0,
@@ -43,8 +42,8 @@ class DatabaseHelper {
       CREATE TABLE customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        phone TEXT NOT NULL DEFAULT '',
-        address TEXT NOT NULL DEFAULT '',
+        phone TEXT,
+        address TEXT,
         balance REAL NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       )
@@ -57,7 +56,6 @@ class DatabaseHelper {
         total REAL NOT NULL DEFAULT 0,
         paid REAL NOT NULL DEFAULT 0,
         debt REAL NOT NULL DEFAULT 0,
-        profit REAL NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       )
     ''');
@@ -70,8 +68,7 @@ class DatabaseHelper {
         quantity REAL NOT NULL,
         purchase_price REAL NOT NULL,
         sale_price REAL NOT NULL,
-        total REAL NOT NULL,
-        profit REAL NOT NULL DEFAULT 0
+        total REAL NOT NULL
       )
     ''');
 
@@ -101,29 +98,9 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id INTEGER NOT NULL,
         amount REAL NOT NULL,
-        note TEXT NOT NULL DEFAULT '',
+        note TEXT,
         created_at TEXT NOT NULL
       )
     ''');
-  }
-
-  Future<void> _onUpgrade(
-    Database db,
-    int oldVersion,
-    int newVersion,
-  ) async {
-    if (oldVersion < 2) {
-      await db.execute(
-        'ALTER TABLE products ADD COLUMN barcode TEXT NOT NULL DEFAULT ""',
-      );
-
-      await db.execute(
-        'ALTER TABLE sales ADD COLUMN profit REAL NOT NULL DEFAULT 0',
-      );
-
-      await db.execute(
-        'ALTER TABLE sale_items ADD COLUMN profit REAL NOT NULL DEFAULT 0',
-      );
-    }
   }
 }
