@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'screens/products_page.dart';
+import 'screens/sales_page.dart';
 
 void main() {
   runApp(const MakhzaniApp());
@@ -47,18 +49,10 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int selectedIndex = 0;
 
-  final pages = const [
-    _DashboardHome(),
-    _PlaceholderPage(
-      icon: Icons.inventory_2_rounded,
-      title: 'المنتجات',
-      subtitle: 'إدارة المنتجات والكميات والأسعار',
-    ),
-    _PlaceholderPage(
-      icon: Icons.point_of_sale_rounded,
-      title: 'المبيعات',
-      subtitle: 'تسجيل ومتابعة عمليات البيع',
-    ),
+  final pages = [
+    const _DashboardHome(),
+    const ProductsPage(),
+    const SalesPage(),
     _PlaceholderPage(
       icon: Icons.shopping_cart_rounded,
       title: 'المشتريات',
